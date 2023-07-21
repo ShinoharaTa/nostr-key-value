@@ -1,0 +1,33 @@
+{
+  "name": "nostr-key-value",
+  "version": "0.1.0",
+  "description": "",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/your-library-name.git"
+  },
+  "bugs": {
+    "url": "https://github.com/username/your-library-name/issues"
+  },
+  "keywords": [],
+  "author": "ShinoharaTa",
+  "license": "ISC",
+  "dependencies": {
+    "nostr-fetch": "^0.12.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "@types/node": "^20.4.2",
+    "dotenv": "^16.3.1",
+    "jest": "^29.6.1",
+    "nostr-tools": "1.12.1",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.1.6"
+  }
+}
