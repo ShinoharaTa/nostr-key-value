@@ -18,10 +18,15 @@ function updateKeyValue(array: KeyValueArray, key: string, value: string) {
       break;
     }
   }
+  return array;
 }
 
 // export funstions
-export const getAll = async (relay: string[], author: string, limit? :number) => {
+export const getAll = async (
+  relay: string[],
+  author: string,
+  limit?: number
+) => {
   const result = await fetcher.fetchLatestEvents(
     relay,
     {
@@ -35,8 +40,8 @@ export const getAll = async (relay: string[], author: string, limit? :number) =>
 
 export const getTable = async (
   relay: string[],
-  tableName: string,
-  author: string
+  author: string,
+  tableName: string
 ) => {
   const result = await fetcher.fetchLastEvent(relay, {
     kinds: [eventKind.appSpecificData],
@@ -48,8 +53,8 @@ export const getTable = async (
 
 export const getSingle = async (
   relay: string[],
-  tableName: string,
   author: string,
+  tableName: string,
   key: string
 ) => {
   const result = await fetcher.fetchLastEvent(relay, {
@@ -57,6 +62,7 @@ export const getSingle = async (
     "#d": [tableName],
     authors: [author],
   });
+  console.log(result)
   if (result) {
     let tag = result.tags.find((tag) => tag[0] === key);
     return tag ? tag[1] : null;
@@ -81,8 +87,8 @@ export const createTable = (tableName: string, tableTitle: string) => {
 
 export const upsertTable = async (
   relay: string[],
-  tableName: string,
   author: string,
+  tableName: string,
   options: KeyValueArray,
   datas: KeyValueArray
 ) => {
@@ -96,7 +102,7 @@ export const upsertTable = async (
   let tags = result.tags;
   options.forEach(([key, value]) => {
     if (keyExists(tags, key)) {
-      updateKeyValue(tags, key, value);
+      tags = updateKeyValue(tags, key, value);
     } else {
       tags.push([key, value]);
     }
@@ -104,7 +110,7 @@ export const upsertTable = async (
 
   datas.forEach(([key, value]) => {
     if (keyExists(tags, key)) {
-      updateKeyValue(tags, key, value);
+      tags = updateKeyValue(tags, key, value);
     } else {
       tags.push([key, value]);
     }
@@ -113,7 +119,7 @@ export const upsertTable = async (
   const ev = {
     kind: result.kind,
     content: result.content,
-    tags: result.tags,
+    tags: tags,
     created_at: unixtime(),
   };
 
@@ -122,8 +128,8 @@ export const upsertTable = async (
 
 export const clearTable = async (
   relay: string[],
-  tableName: string,
   author: string,
+  tableName: string,
   optionsLength: number
 ) => {
   const result = await fetcher.fetchLastEvent(relay, {
