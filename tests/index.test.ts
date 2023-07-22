@@ -10,7 +10,6 @@ import {
 import { relayInit, finishEvent, EventTemplate } from "nostr-tools";
 import dotenv from "dotenv";
 import "websocket-polyfill";
-import { exit } from "process";
 
 dotenv.config();
 
@@ -73,7 +72,7 @@ test("InsertTest", async () => {
   post(ev);
 });
 
-test("wait", () => wait(2000));
+test("wait", async () => wait(2000));
 
 test("UpsertTest", async () => {
   const options: KeyValueArray = [
@@ -88,7 +87,7 @@ test("UpsertTest", async () => {
   post(ev);
 });
 
-test("wait", () => wait(2000));
+test("wait", async () => wait(2000));
 
 test("GetTest", async () => {
   const all = await getAll([relayUrl], npub, 10);
@@ -101,7 +100,7 @@ test("GetTest", async () => {
   console.log("single", single);
 });
 
-test("wait", () => wait(2000));
+test("wait", async () => wait(2000));
 
 test("ClearTest", async () => {
   let ev = null;
