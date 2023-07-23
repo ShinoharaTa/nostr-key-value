@@ -22,26 +22,28 @@ relay.on("error", () => {
   throw "failed to connnect";
 });
 
-test("init", async () => {
-  // await relay.connect();
-});
-
 const wait = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
 };
 
 const post = async (ev: any) => {
-  const data = finishEvent(ev, nsec);
-  const pub = relay.publish(data);
-  // pub.on("ok", () => {
-  //   console.log("succeess!");
-  // });
-  // pub.on("failed", () => {
-  //   console.log("failed to send event");
-  // });
+  return new Promise((resolve, reject) => {
+    const data = finishEvent(ev, nsec);
+    const pub = relay.publish(data);
+
+    pub.on("ok", () => {
+      // console.log("succeess!");
+      resolve("success");
+    });
+
+    pub.on("failed", () => {
+      // console.log("failed to send event");
+      reject("failed");
+    });
+  });
 };
 
-test("CreateTest", () => {
+const create = async () => {
   let table_ev = null;
   table_ev = createTable("test_table", "NostrKeyValue_TestTable");
   post(table_ev);
@@ -49,11 +51,9 @@ test("CreateTest", () => {
   post(table_ev);
   table_ev = createTable("test_table3", "NostrKeyValue_TestTable");
   post(table_ev);
-});
+};
 
-test("wait", () => wait(2000));
-
-test("InsertTest", async () => {
+const insert = async () => {
   const options: KeyValueArray = [
     ["option1", "option"],
     ["option2", "option"],
@@ -70,11 +70,9 @@ test("InsertTest", async () => {
   ];
   const ev = await upsertTable([relayUrl], npub, "test_table", options, datas);
   post(ev);
-});
+};
 
-test("wait", async () => wait(2000));
-
-test("UpsertTest", async () => {
+const upsert = async () => {
   const options: KeyValueArray = [
     ["option3", "option_update"],
     ["option7", "option_update"],
@@ -85,11 +83,9 @@ test("UpsertTest", async () => {
   ];
   const ev = await upsertTable([relayUrl], npub, "test_table", options, datas);
   post(ev);
-});
+};
 
-test("wait", async () => wait(2000));
-
-test("GetTest", async () => {
+const get = async () => {
   const all = await getAll([relayUrl], npub, 10);
   // console.log(all);
 
@@ -98,11 +94,9 @@ test("GetTest", async () => {
 
   const single = await getSingle([relayUrl], npub, "test_table", "key1");
   console.log("single", single);
-});
+};
 
-test("wait", async () => wait(2000));
-
-test("ClearTest", async () => {
+const clear = async () => {
   let ev = null;
   ev = await clearTable([relayUrl], npub, "test_table", 0);
   expect(ev).not.toBeNull();
@@ -113,4 +107,17 @@ test("ClearTest", async () => {
   ev = await clearTable([relayUrl], npub, "test_table", 0);
   expect(ev).not.toBeNull();
   post(ev);
+};
+
+test("default", async () => {
+  await relay.connect();
+  await create();
+  // await wait(2000);
+  await insert();
+  // await wait(2000);
+  await upsert();
+  // await wait(2000);
+  await get();
+  // await wait(2000);
+  await clear();
 });
