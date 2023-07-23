@@ -10,10 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/username/your-library-name.git"
+    "url": "git+https://github.com/ShinoharaTa/nostr-key-value.git"
   },
   "bugs": {
-    "url": "https://github.com/username/your-library-name/issues"
+    "url": "https://github.com/ShinoharaTa/nostr-key-value/issues"
   },
   "keywords": [],
   "author": "ShinoharaTa",
