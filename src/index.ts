@@ -62,7 +62,6 @@ export const getSingle = async (
     "#d": [tableName],
     authors: [author],
   });
-  console.log(result)
   if (result) {
     let tag = result.tags.find((tag) => tag[0] === key);
     return tag ? tag[1] : null;
