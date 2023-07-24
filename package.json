@@ -1,10 +1,11 @@
 {
   "name": "nostr-key-value",
-  "version": "0.1.2",
+  "version": "0.1.6",
   "description": "",
   "main": "./lib/index.js",
-  "module": "./lib/index.es.js",
+  "module": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "type": "module",
   "scripts": {
     "test": "jest",
     "build": "tsc"
@@ -16,6 +17,10 @@
   "bugs": {
     "url": "https://github.com/ShinoharaTa/nostr-key-value/issues"
   },
+  "files": [
+    "src",
+    "lib"
+  ],
   "keywords": ["nostr", "key-value", "NIP-78"],
   "author": "ShinoharaTa",
   "license": "MIT",
