@@ -44,7 +44,7 @@ const post = async (ev: any) => {
 };
 
 const create = async () => {
-  let table_ev = null;
+  let table_ev: any = null;
   table_ev = createTable("test_table", "NostrKeyValue_TestTable");
   post(table_ev);
   table_ev = createTable("test_table2", "NostrKeyValue_TestTable");
@@ -97,7 +97,7 @@ const get = async () => {
 };
 
 const clear = async () => {
-  let ev = null;
+  let ev: any = null;
   ev = await clearTable([relayUrl], npub, "test_table", 0);
   expect(ev).not.toBeNull();
   post(ev);
