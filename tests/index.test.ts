@@ -22,10 +22,6 @@ relay.on("error", () => {
   throw "failed to connnect";
 });
 
-const wait = (ms: number) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-};
-
 const post = async (ev: any) => {
   return new Promise((resolve, reject) => {
     const data = finishEvent(ev, nsec);
