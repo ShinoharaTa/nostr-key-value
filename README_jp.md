@@ -3,11 +3,11 @@
 これは Nostr を Key-Value の DB として使用したいプロジェクトです。
 JavaScript/TypeScriptをサポートします。
 
--> [to Englis](./README.md)
+-> [to English](./README.md)
 
 このライブラリは NIP-78 が使用されています。 NIP-78 とはremoteStorageのようなものを提供するシステムです。kind: 30078 が設定された post のことで、NIP-33 (Kind: 3xxxx) を拡張しています。
 
--> [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md) -> [NIP-78 日本語訳}(https://scrapbox.io/nostr/NIP-78)
+-> [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md) -> [NIP-78 日本語訳](https://scrapbox.io/nostr/NIP-78)
 
 ## データ構成
 
