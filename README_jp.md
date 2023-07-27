@@ -16,6 +16,10 @@ JavaScript/TypeScript をサポートします。
 - NIP-05: shino3@nostr.shino3.net
 - LNaddr: achingcancer35@walletofsatoshi.com
 
+## ライセンス
+
+このライブラリには MIT が適用されます。
+
 ## データ構成
 
 このプロジェクトは以下のように KeyValue のストレージを作って使用されることを想定しています。  
