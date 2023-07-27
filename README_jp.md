@@ -7,14 +7,17 @@ JavaScript/TypeScript をサポートします。
 
 このライブラリは NIP-78 が使用されています。 NIP-78 とは remoteStorage のようなものを提供するシステムです。kind: 30078 が設定された post のことで、NIP-33 (Kind: 3xxxx) を拡張しています。
 
--> [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md) -> [NIP-78 日本語訳](https://scrapbox.io/nostr/NIP-78)
+-> [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md)  
+-> [NIP-78 日本語訳](https://scrapbox.io/nostr/NIP-78)
 
 ## 作った人
+
+Shino3 (しのさん)
 
 - GitHub: @ShinoharaTa (https://github.com/ShinoharaTa)
 - nostr: shino3 (https://nostx.shino3.net/npub1l60d6h2uvdwa9yq0r7r2suhgrnsadcst6nsx2j03xwhxhu2cjyascejxe5)
 - NIP-05: shino3@nostr.shino3.net
-- LN addr: achingcancer35@walletofsatoshi.com
+- ⚡LN addr: achingcancer35@walletofsatoshi.com
 
 ## ライセンス
 
