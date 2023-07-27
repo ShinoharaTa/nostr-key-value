@@ -19,7 +19,7 @@ const relayUrl = process.env.RELAY ?? "";
 
 const relay = relayInit(relayUrl);
 relay.on("error", () => {
-  throw "failed to connnect";
+  throw "failed to connect";
 });
 
 const post = async (ev: any) => {
@@ -57,14 +57,14 @@ const insert = async () => {
     ["option4", "option"],
     ["option5", "option"],
   ];
-  const datas: KeyValueArray = [
+  const values: KeyValueArray = [
     ["key1", "value 1"],
     ["key2", "value 2"],
     ["key3", "value 3"],
     ["key4", "value 4"],
     ["key5", "value 5"],
   ];
-  const ev = await upsertTable([relayUrl], npub, "test_table", options, datas);
+  const ev = await upsertTable([relayUrl], npub, "test_table", options, values);
   post(ev);
 };
 
@@ -73,11 +73,11 @@ const upsert = async () => {
     ["option3", "option_update"],
     ["option7", "option_update"],
   ];
-  const datas: KeyValueArray = [
+  const values: KeyValueArray = [
     ["key2", "value 2_update"],
     ["key9", "value 9_update"],
   ];
-  const ev = await upsertTable([relayUrl], npub, "test_table", options, datas);
+  const ev = await upsertTable([relayUrl], npub, "test_table", options, values);
   post(ev);
 };
 
