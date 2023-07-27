@@ -11,10 +11,10 @@ JavaScript/TypeScript をサポートします。
 
 ## 作った人
 
-- github: @ShinoharaTa (https://github.com/ShinoharaTa)
+- GitHub: @ShinoharaTa (https://github.com/ShinoharaTa)
 - nostr: shino3 (https://nostx.shino3.net/npub1l60d6h2uvdwa9yq0r7r2suhgrnsadcst6nsx2j03xwhxhu2cjyascejxe5)
 - NIP-05: shino3@nostr.shino3.net
-- LNaddr: achingcancer35@walletofsatoshi.com
+- LN addr: achingcancer35@walletofsatoshi.com
 
 ## ライセンス
 
