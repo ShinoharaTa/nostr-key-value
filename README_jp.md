@@ -9,6 +9,13 @@ JavaScript/TypeScript をサポートします。
 
 -> [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md) -> [NIP-78 日本語訳](https://scrapbox.io/nostr/NIP-78)
 
+## 作った人
+
+- github: @ShinoharaTa (https://github.com/ShinoharaTa)
+- nostr: shino3 (https://nostx.shino3.net/npub1l60d6h2uvdwa9yq0r7r2suhgrnsadcst6nsx2j03xwhxhu2cjyascejxe5)
+- NIP-05: shino3@nostr.shino3.net
+- LNaddr: achingcancer35@walletofsatoshi.com
+
 ## データ構成
 
 このプロジェクトは以下のように KeyValue のストレージを作って使用されることを想定しています。  
