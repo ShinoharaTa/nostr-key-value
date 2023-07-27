@@ -89,7 +89,7 @@ export const upsertTable = async (
   author: string,
   tableName: string,
   options: KeyValueArray,
-  datas: KeyValueArray
+  values: KeyValueArray
 ) => {
   const result = await fetcher.fetchLastEvent(relay, {
     kinds: [eventKind.appSpecificData],
@@ -107,7 +107,7 @@ export const upsertTable = async (
     }
   });
 
-  datas.forEach(([key, value]) => {
+  values.forEach(([key, value]) => {
     if (keyExists(tags, key)) {
       tags = updateKeyValue(tags, key, value);
     } else {
