@@ -1,20 +1,224 @@
 # Nostr-Key-Value
 
-This is a project that wants to use Nostr as a Key-Value DB.  
-The internal structure uses NIP-78. NIP-78 is a post with kind: 30078 defined, which is an extension of NIP-23 (Kind: 30023).
+NOTE: This README is translated by DeepL.
 
-[to Japanese](./README_jp.md)
+This is a project that wants to use Nostr as a Key-Value DB.
+JavaScript/TypeScript support.
 
-## Install
+->[日本語のREADMEはこちら (to Japanese)](./README_jp.md)
+
+This library uses NIP-78, which is a system that provides something like remoteStorage. NIP-78 is a system that provides something like remoteStorage; it is a post with Kind: 30078 and extends NIP-33 (Kind: 3xxxx).
+
+-> [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md)
+
+## Who made it
+
+Shino3 (Shino-san) from:🇯🇵
+
+- GitHub: @ShinoharaTa (https://github.com/ShinoharaTa)
+- nostr: shino3 (https://nostx.shino3.net/npub1l60d6h2uvdwa9yq0r7r2suhgrnsadcst6nsx2j03xwhxhu2cjyascejxe5)
+- NIP-05: shino3@nostr.shino3.net
+- ⚡LN addr: achingcancer35@walletofsatoshi.com
+
+## License
+
+MIT applies to this library.
+
+## Data configuration
+
+This project is intended to be used to create KeyValue storage as follows.  
+The content of the value can be anything, but it must be a string. For example, you can set up a JSON-format object, but it must be encoded as a string.
+
+- Author:
+  - Table 1
+    - Key: value
+    - Key: value
+    - Key: value
+  - Table 2
+    - Key: value
+    - Key: value
+    - Key: value
+  - Table 3
+    - Key: value
+    - Key: value
+    - Key: value
+
+## Installation
+
+You can install it with the following command:
 
 ```shell
-npm install your-package-name
+npm install nostr-key-value
 ```
 
-## Sample Code
+## How to use
 
-準備中...
+After installing via npm in your project, use the following code.
 
-## How to use?
+### GET
 
-準備中...
+GET the specified object from the `kind: 30078` stored on the Nostr relay.
+
+#### `getAll`
+
+Get all `kind: 30078` that Author has.
+
+- Arguments
+  - relay: `[wss://relay-url]` string array (required)
+  - author: `npub` string (required)
+  - limit: `maximum number to retrieve` of type number, default: 100
+- Return value
+  - Array of NostrEvent (NostrEvent type of nostr-fetch)
+  - If no match is found, array.length in the response will be 0.
+
+#### `getTable`
+
+Get the object whose table name matches from `kind: 30078` which Author has.
+
+- Arguments
+  - relay: `[wss://relay-url]` string array (required)
+  - author: `npub` string type (required)
+  - table: string type (required)
+- Return values
+  - NostrEvent (NostrEvent type of nostr-fetch) or Null
+  - If no match is found, the response will be null.
+
+#### `getSingle`
+
+Searches a table from `kind: 30078` which Author has, and gets the specified key of the table.
+
+- Arguments
+  - relay: `[wss://relay-url]` string array (required)
+  - author: `npub` string type (required)
+  - table: string type (required)
+  - key: string type (required)
+- Return value
+  - string type or Null
+  - If no match is found, the response will be null.
+
+```javascript
+import { getAll, getTable, getSingle } from "nostr-key-value";
+
+async () => {
+  const all = await getAll([relayUrl], npub, 10);
+  console.log(all);
+
+  const table = await getTable([relayUrl], npub, "test_table");
+  console.log("table", table);
+
+  const single = await getSingle([relayUrl], npub, "test_table", "key1");
+  console.log("single", single);
+};
+```
+
+### CREATE
+
+This function returns the JSON required to create a new table.  
+The table creation is complete when the JSON is signed and submitted to the relay.
+
+Please use nostr-tools or other tools to sign and submit the JSON. This library does not support it.
+Note: If an identical table already exists on the relay, it will be overwritten.
+
+#### `createTable`
+
+- Arguments
+  - tableName: string (required)
+  - tableTitle: string (required)
+- Return values
+  - JSON object
+
+```javascript
+import { createTable } from "nostr-key-value";
+
+const table_ev = createTable("table_name", "table_title");
+post(table_ev);
+
+// use: nostr-tools methods
+const relayUrl = "wss://your-relay-url";
+const relay = relayInit(relayUrl);
+const post = async (ev) => {
+  return new Promise((resolve, reject) => {
+    const data = finishEvent(ev, nsec);
+    const pub = relay.publish(data);
+    pub.on("ok", () => {
+      resolve("success");
+    });
+    pub.on("failed", () => {
+      reject("failed");
+    });
+  });
+};
+```
+
+### INSERT, UPDATE
+
+This function returns the JSON required to add or update data to a table.  
+The table update is complete when the JSON is signed and sent to the relay.
+
+JSON should be signed and submitted using nostr-tools or similar. This is not supported by this library.
+Note that `note` rollback is not available.
+
+#### `upsertTable`
+
+- Arguments
+  - relay: `[wss://relay-url]` string array (required)
+  - author: `npub` string type (required)
+  - tableName: string type (required)
+  - options: array of type KeyValueArray (required), * length: 0 OK
+  - items: Array of the KeyValueArray type (required), * length: 0 OK
+- Return value
+  - JSON object or null
+  - If there is no matching table, the response will be null.
+
+```javascript
+import { upsertTable } from "nostr-key-value";
+
+const options = [
+  ["option_key0", "value"],
+  ["option_key1", "value"],
+  ["option_key2", "value"],
+];
+const datas = [
+  ["data_key0", "value"],
+  ["data_key1", "value"],
+  ["data_key2", "value"],
+  ["data_key3", "value"],
+  ["data_key4", "value"],
+];
+
+const table_ev = upsertTable([relayUrl], npub, "table_name", options, items);
+// use nostr tools posts;
+post(table_ev);
+```
+
+### CLEAR
+
+This function returns JSON to clear the data in the table.  
+The table update is complete when the JSON is signed and sent to the relay.
+
+Please use nostr-tools or other tools to sign and submit the JSON. This is not supported by this library.
+Note that `note` rollback is not available.
+
+#### `clearTable`
+
+- Arguments
+  - relay: `[wss://relay-url]` string array (required)
+  - author: `npub` string type (required)
+  - tableName: string type (required)
+  - optionsLength: number type (required) * length: 0 OK
+- Return value
+  - JSON object or null
+  - If there is no matching table, the response will be null.
+
+```javascript
+import { upsertTable } from "nostr-key-value";
+
+const options = [
+  ["option_key0", "value"],
+  ["option_key1", "value"],
+  ["option_key2", "value"],
+];
+const table_ev = upsertTable([relayUrl], npub, "table_name", options.length);
+// use nostr tools posts;
+post(table_ev);
+```
