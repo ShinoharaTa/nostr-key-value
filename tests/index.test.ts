@@ -7,7 +7,7 @@ import {
   KeyValueArray,
   clearTable,
 } from "../src";
-import { relayInit, finishEvent, EventTemplate } from "nostr-tools";
+import { relayInit, finishEvent } from "nostr-tools";
 import dotenv from "dotenv";
 import "websocket-polyfill";
 
@@ -83,7 +83,7 @@ const upsert = async () => {
 
 const get = async () => {
   const all = await getAll([relayUrl], npub, 10);
-  // console.log(all);
+  console.log(all);
 
   const table = await getTable([relayUrl], npub, "test_table");
   console.log("table", table);
