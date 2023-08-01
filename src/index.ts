@@ -145,3 +145,35 @@ export const clearTable = async (
   };
   return ev;
 };
+
+type ValueType = string | number | object;
+export type KeyValueObject = {
+  [key: string]: ValueType;
+};
+export const utilKeyValueArrayToObject = (
+  values: KeyValueArray
+): KeyValueObject => {
+  let result: KeyValueObject = {};
+
+  for (let item of values) {
+    let [key, value] = item;
+    result[key] = value;
+  }
+  return result;
+};
+
+export const utilObjectToKeyValueArray = (
+  values: KeyValueObject
+): KeyValueArray => {
+  let array: KeyValueArray = [];
+  for (let key in values) {
+    let value = values[key];
+    if (typeof value === "number") {
+      value = value.toString();
+    } else if (typeof value === "object") {
+      value = JSON.stringify(value);
+    }
+    array.push([key, value]);
+  }
+  return array;
+};
