@@ -84,6 +84,28 @@ export const createTable = (tableName: string, tableTitle: string) => {
   return ev;
 };
 
+export const createTableExists = async (
+  relay: string[],
+  author: string,
+  tableName: string,
+  tableTitle: string
+) => {
+  const result = await getTable(relay, author, tableName);
+  if (result) return null;
+  const db_head: DBHead = [
+    ["d", tableName],
+    ["title", tableTitle],
+    ["t", tableName],
+  ];
+  const ev = {
+    kind: eventKind.appSpecificData,
+    content: "test",
+    tags: db_head,
+    created_at: unixtime(),
+  };
+  return ev;
+};
+
 export const upsertTable = async (
   relay: string[],
   author: string,
