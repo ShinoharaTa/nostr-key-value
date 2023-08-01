@@ -147,6 +147,60 @@ export const upsertTable = async (
   return ev;
 };
 
+export const upsertTableOrCreate = async (
+  relay: string[],
+  author: string,
+  tableName: string,
+  tableTitle: string,
+  options: KeyValueArray,
+  values: KeyValueArray
+) => {
+  let result = await fetcher.fetchLastEvent(relay, {
+    kinds: [eventKind.appSpecificData],
+    "#d": [tableName],
+    authors: [author],
+  });
+  if (!result) {
+    const db_head: DBHead = [
+      ["d", tableName],
+      ["title", tableTitle],
+      ["t", tableName],
+    ];
+    result = {
+      kind: eventKind.appSpecificData,
+      content: "test",
+      tags: db_head,
+      created_at: unixtime(),
+    };
+  }
+
+  let tags = result.tags;
+  options.forEach(([key, value]) => {
+    if (keyExists(tags, key)) {
+      tags = updateKeyValue(tags, key, value);
+    } else {
+      tags.push([key, value]);
+    }
+  });
+
+  values.forEach(([key, value]) => {
+    if (keyExists(tags, key)) {
+      tags = updateKeyValue(tags, key, value);
+    } else {
+      tags.push([key, value]);
+    }
+  });
+
+  const ev = {
+    kind: result.kind,
+    content: result.content,
+    tags: tags,
+    created_at: unixtime(),
+  };
+
+  return ev;
+};
+
 export const clearTable = async (
   relay: string[],
   author: string,
