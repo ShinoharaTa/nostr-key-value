@@ -194,7 +194,7 @@ JSON を署名し、リレーに送信した段階でテーブルの更新が完
   - author: `npub` string 型（必須）
   - tableName: string 型（必須）
   - options: KeyValueArray 型の配列（必須）、※ length: 0 OK
-  - items: KeyValueArray 型の配列（必須）、※ length: 0 OK
+  - values: KeyValueArray 型の配列（必須）、※ length: 0 OK
 - 戻り値
   - JSON オブジェクト or null
   - ※ 一致するテーブルがない場合、レスポンスは null になります
@@ -207,7 +207,7 @@ const options = [
   ["option_key1", "value"],
   ["option_key2", "value"],
 ];
-const datas = [
+const values = [
   ["data_key0", "value"],
   ["data_key1", "value"],
   ["data_key2", "value"],
@@ -215,7 +215,7 @@ const datas = [
   ["data_key4", "value"],
 ];
 
-const table_ev = upsertTable([relayUrl], npub, "table_name", options, items);
+const table_ev = upsertTable([relayUrl], npub, "table_name", options, values);
 // use nostr tools posts;
 post(table_ev);
 ```
@@ -230,7 +230,7 @@ post(table_ev);
   - tableName: string 型（必須）
   - tableTitle: string 型（必須）
   - options: KeyValueArray 型の配列（必須）、※ length: 0 OK
-  - items: KeyValueArray 型の配列（必須）、※ length: 0 OK
+  - values: KeyValueArray 型の配列（必須）、※ length: 0 OK
 - 戻り値
   - JSON オブジェクト
 
@@ -242,7 +242,7 @@ const options = [
   ["option_key1", "value"],
   ["option_key2", "value"],
 ];
-const datas = [
+const values = [
   ["data_key0", "value"],
   ["data_key1", "value"],
   ["data_key2", "value"],
@@ -256,7 +256,7 @@ const table_ev = upsertTableOrCreate(
   "table_name",
   "table_title",
   options,
-  items
+  values
 );
 // use nostr tools posts;
 post(table_ev);
@@ -292,4 +292,46 @@ const options = [
 const table_ev = upsertTable([relayUrl], npub, "table_name", options.length);
 // use nostr tools posts;
 post(table_ev);
+```
+
+### ユーティリティ
+
+便利なアイテムを用意しました。以下の関数が提供されます。
+
+#### `utilKeyValueArrayToObject`
+
+- 引数
+  - values: KeyValueArray 型の配列（必須）、※ length: 0 OK
+- 戻り値
+  - JSON オブジェクト
+
+```javascript
+import { utilKeyValueArrayToObject } from "nostr-key-value";
+const values = [
+  ["data_key0", "value"],
+  ["data_key1", "value"],
+  ["data_key2", "value"],
+  ["data_key3", "value"],
+  ["data_key4", "value"],
+];
+const objects = utilKeyValueArrayToObject(values);
+```
+
+#### `utilObjectToKeyValueArray`
+
+- 引数
+  - KeyValueObject: JSON オブジェクト
+- 戻り値
+  - KeyValueArray 型の配列（必須）、※ length: 0 OK
+
+```javascript
+import { utilObjectToKeyValueArray } from "nostr-key-value";
+const object = {
+  data_key0: "value",
+  data_key1: "value",
+  data_key2: "value",
+  data_key3: "value",
+  data_key4: "value",
+};
+const values = utilObjectToKeyValueArray(values);
 ```

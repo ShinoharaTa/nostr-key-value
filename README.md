@@ -191,7 +191,7 @@ Note that `note` rollback is not available.
   - author: `npub` string type (required)
   - tableName: string type (required)
   - options: array of type KeyValueArray (required), * length: 0 OK
-  - items: Array of the KeyValueArray type (required), * length: 0 OK
+  - values: Array of the KeyValueArray type (required), * length: 0 OK
 - Return value
   - JSON object or null
   - If there is no matching table, the response will be null.
@@ -204,7 +204,7 @@ const options = [
   ["option_key1", "value"],
   ["option_key2", "value"],
 ];
-const datas = [
+const values = [
   ["data_key0", "value"],
   ["data_key1", "value"],
   ["data_key2", "value"],
@@ -212,7 +212,7 @@ const datas = [
   ["data_key4", "value"],
 ];
 
-const table_ev = upsertTable([relayUrl], npub, "table_name", options, items);
+const table_ev = upsertTable([relayUrl], npub, "table_name", options, values);
 // use nostr tools posts;
 post(table_ev);
 ```
@@ -227,7 +227,7 @@ If the tables do not match, a new one is created and records are inserted.
   - tableName: string type (required)
   - tableTitle: string type (required)
   - options: array of type KeyValueArray (required), * length: 0 OK
-  - items: Array of the KeyValueArray type (required), * length: 0 OK
+  - values: Array of the KeyValueArray type (required), * length: 0 OK
 - Return value
   - JSON object
 
@@ -239,7 +239,7 @@ const options = [
   ["option_key1", "value"],
   ["option_key2", "value"],
 ];
-const datas = [
+const values = [
   ["data_key0", "value"],
   ["data_key1", "value"],
   ["data_key2", "value"],
@@ -253,7 +253,7 @@ const table_ev = upsertTableOrCreate(
   "table_name",
   "table_title",
   options,
-  items
+  values
 );
 // use nostr tools posts;
 post(table_ev);
@@ -289,4 +289,46 @@ const options = [
 const table_ev = upsertTable([relayUrl], npub, "table_name", options.length);
 // use nostr tools posts;
 post(table_ev);
+```
+
+### ユーティリティ
+
+Useful items are provided. The following functions are provided
+
+#### `utilKeyValueArrayToObject`
+
+- Arguments
+  - values: Array of KeyValueArray type (required), * length: 0 OK
+- Return value
+  - JSON object
+
+```javascript
+import { utilKeyValueArrayToObject } from "nostr-key-value";
+const values = [
+  ["data_key0", "value"],
+  ["data_key1", "value"],
+  ["data_key2", "value"],
+  ["data_key3", "value"],
+  ["data_key4", "value"],
+];
+const objects = utilKeyValueArrayToObject(values);
+```
+
+#### `utilObjectToKeyValueArray`
+
+- Arguments
+  - KeyValueObject: JSON object
+- Return value
+  - Array of KeyValueArray type (required), * length: 0 OK
+
+```javascript
+import { utilObjectToKeyValueArray } from "nostr-key-value";
+const object = {
+  data_key0: "value",
+  data_key1: "value",
+  data_key2: "value",
+  data_key3: "value",
+  data_key4: "value",
+};
+const values = utilObjectToKeyValueArray(values);
 ```
