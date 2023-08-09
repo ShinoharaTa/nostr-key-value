@@ -155,45 +155,39 @@ export const upsertTableOrCreate = async (
   options: KeyValueArray,
   values: KeyValueArray
 ) => {
-  let result = await fetcher.fetchLastEvent(relay, {
-    kinds: [eventKind.appSpecificData],
-    "#d": [tableName],
-    authors: [author],
-  });
-  if (!result) {
-    const db_head: DBHead = [
+  const { kind, content, tags } = (await getTable(
+    relay,
+    author,
+    tableName
+  )) ?? {
+    kind: eventKind.appSpecificData,
+    content: "test",
+    tags: [
       ["d", tableName],
       ["title", tableTitle],
       ["t", tableName],
-    ];
-    result = {
-      kind: eventKind.appSpecificData,
-      content: "test",
-      tags: db_head,
-      created_at: unixtime(),
-    };
-  }
-
-  let tags = result.tags;
+    ],
+  };
+  let tag_temp = tags;
   options.forEach(([key, value]) => {
-    if (keyExists(tags, key)) {
-      tags = updateKeyValue(tags, key, value);
+    if (keyExists(tag_temp, key)) {
+      tag_temp = updateKeyValue(tags, key, value);
     } else {
-      tags.push([key, value]);
+      tag_temp.push([key, value]);
     }
   });
 
   values.forEach(([key, value]) => {
-    if (keyExists(tags, key)) {
-      tags = updateKeyValue(tags, key, value);
+    if (keyExists(tag_temp, key)) {
+      tag_temp = updateKeyValue(tags, key, value);
     } else {
-      tags.push([key, value]);
+      tag_temp.push([key, value]);
     }
   });
 
   const ev = {
-    kind: result.kind,
-    content: result.content,
+    kind: kind,
+    content: content,
     tags: tags,
     created_at: unixtime(),
   };
@@ -226,6 +220,7 @@ type ValueType = string | number | object;
 export type KeyValueObject = {
   [key: string]: ValueType;
 };
+
 export const utilKeyValueArrayToObject = (
   values: KeyValueArray
 ): KeyValueObject => {

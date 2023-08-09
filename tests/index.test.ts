@@ -6,6 +6,10 @@ import {
   upsertTable,
   KeyValueArray,
   clearTable,
+  utilKeyValueArrayToObject,
+  utilObjectToKeyValueArray,
+  upsertTableOrCreate,
+  createTableExists,
 } from "../src";
 import { relayInit, finishEvent } from "nostr-tools";
 import dotenv from "dotenv";
@@ -105,15 +109,42 @@ const clear = async () => {
   post(ev);
 };
 
+const exists = async () => {
+  await upsertTableOrCreate(
+    [relayUrl],
+    npub,
+    "update_table_or_create",
+    "table_title",
+    [],
+    []
+  );
+  await createTableExists(
+    [relayUrl],
+    npub,
+    "update_table_or_create",
+    "table_title"
+  );
+};
+
+const util = () => {
+  const obj = {
+    test1: "value1",
+    test2: "value2",
+    test3: "value3",
+    test4: "value4",
+  };
+  const result1 = utilObjectToKeyValueArray(obj);
+  const result2 = utilKeyValueArrayToObject(result1);
+  expect(result2).toEqual(obj);
+};
+
 test("default", async () => {
   await relay.connect();
   await create();
-  // await wait(2000);
   await insert();
-  // await wait(2000);
   await upsert();
-  // await wait(2000);
   await get();
-  // await wait(2000);
   await clear();
+  await exists();
+  util();
 });
