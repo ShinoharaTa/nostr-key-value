@@ -181,7 +181,7 @@ const options = [
   ["option_key1", "value"],
   ["option_key2", "value"],
 ];
-const datas = [
+const items = [
   ["data_key0", "value"],
   ["data_key1", "value"],
   ["data_key2", "value"],
