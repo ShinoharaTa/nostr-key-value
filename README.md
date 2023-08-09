@@ -150,6 +150,32 @@ const post = async (ev) => {
 };
 ```
 
+#### `createTableExists`
+
+Checks for the existence of a table before creating it. Returns `null` if the table already exists.
+If null, new creation of the table is protected.
+
+- Arguments
+  - relay: `[wss://relay-url]` string array (required)
+  - author: `npub` string type (required)
+  - tableName: string type (required)
+  - tableTitle: string type (required)
+- Return values
+  - JSON object or null
+
+```javascript
+import { createTable } from "nostr-key-value";
+
+const table_ev = createTableExists(
+  [relayUrl],
+  npub,
+  "table_name",
+  "table_title"
+);
+// use: nostr-tools post methods.
+if(table_ev) post(table_ev);
+```
+
 ### INSERT, UPDATE
 
 This function returns the JSON required to add or update data to a table.  
@@ -187,6 +213,48 @@ const datas = [
 ];
 
 const table_ev = upsertTable([relayUrl], npub, "table_name", options, items);
+// use nostr tools posts;
+post(table_ev);
+```
+
+#### `upsertTableOrCreate`
+
+If the tables do not match, a new one is created and records are inserted.
+
+- Arguments
+  - relay: `[wss://relay-url]` string array (required)
+  - author: `npub` string type (required)
+  - tableName: string type (required)
+  - tableTitle: string type (required)
+  - options: array of type KeyValueArray (required), * length: 0 OK
+  - items: Array of the KeyValueArray type (required), * length: 0 OK
+- Return value
+  - JSON object
+
+```javascript
+import { upsertTable } from "nostr-key-value";
+
+const options = [
+  ["option_key0", "value"],
+  ["option_key1", "value"],
+  ["option_key2", "value"],
+];
+const datas = [
+  ["data_key0", "value"],
+  ["data_key1", "value"],
+  ["data_key2", "value"],
+  ["data_key3", "value"],
+  ["data_key4", "value"],
+];
+
+const table_ev = upsertTableOrCreate(
+  [relayUrl],
+  npub,
+  "table_name",
+  "table_title",
+  options,
+  items
+);
 // use nostr tools posts;
 post(table_ev);
 ```

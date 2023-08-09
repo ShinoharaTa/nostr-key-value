@@ -153,6 +153,32 @@ const post = async (ev) => {
 };
 ```
 
+#### `createTableExists`
+
+Create 前にテーブルの存在検査をおこないます。既にテーブルが存在する場合は `null` を返します。
+null のときはテーブルの新規作成が保護されます。
+
+- 引数
+  - relay: `[wss://relay-url]` string 型の配列（必須）
+  - author: `npub` string 型（必須）
+  - tableName: string 型（必須）
+  - tableTitle: string 型（必須）
+- 戻り値
+  - JSON オブジェクト or null
+
+```javascript
+import { createTable } from "nostr-key-value";
+
+const table_ev = createTableExists(
+  [relayUrl],
+  npub,
+  "table_name",
+  "table_title"
+);
+// use: nostr-tools post methods.
+if(table_ev) post(table_ev);
+```
+
 ### INSERT, UPDATE
 
 この関数はテーブルへのデータ追加・更新に必要な JSON を返します。  
@@ -190,6 +216,48 @@ const datas = [
 ];
 
 const table_ev = upsertTable([relayUrl], npub, "table_name", options, items);
+// use nostr tools posts;
+post(table_ev);
+```
+
+#### `upsertTableOrCreate`
+
+テーブルが一致しない場合は新規に作成し、レコードを挿入します。
+
+- 引数
+  - relay: `[wss://relay-url]` string 型の配列（必須）
+  - author: `npub` string 型（必須）
+  - tableName: string 型（必須）
+  - tableTitle: string 型（必須）
+  - options: KeyValueArray 型の配列（必須）、※ length: 0 OK
+  - items: KeyValueArray 型の配列（必須）、※ length: 0 OK
+- 戻り値
+  - JSON オブジェクト
+
+```javascript
+import { upsertTable } from "nostr-key-value";
+
+const options = [
+  ["option_key0", "value"],
+  ["option_key1", "value"],
+  ["option_key2", "value"],
+];
+const datas = [
+  ["data_key0", "value"],
+  ["data_key1", "value"],
+  ["data_key2", "value"],
+  ["data_key3", "value"],
+  ["data_key4", "value"],
+];
+
+const table_ev = upsertTableOrCreate(
+  [relayUrl],
+  npub,
+  "table_name",
+  "table_title",
+  options,
+  items
+);
 // use nostr tools posts;
 post(table_ev);
 ```
