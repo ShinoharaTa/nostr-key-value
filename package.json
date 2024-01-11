@@ -1,6 +1,6 @@
 {
   "name": "nostr-key-value",
-  "version": "0.3.2",
+  "version": "1.0.0",
   "description": "",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -21,7 +21,11 @@
     "src",
     "lib"
   ],
-  "keywords": ["nostr", "key-value", "NIP-78"],
+  "keywords": [
+    "nostr",
+    "key-value",
+    "NIP-78"
+  ],
   "author": "ShinoharaTa",
   "license": "MIT",
   "dependencies": {
@@ -30,9 +34,10 @@
   "devDependencies": {
     "@types/jest": "^29.5.3",
     "@types/node": "^20.4.2",
+    "date-fns": "^2.30.0",
     "dotenv": "^16.3.1",
     "jest": "^29.6.1",
-    "nostr-tools": "1.12.1",
+    "nostr-tools": "^1.16.0",
     "ts-jest": "^29.1.1",
     "ts-node": "^10.9.1",
     "typescript": "^5.1.6",
