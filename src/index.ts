@@ -20,12 +20,12 @@ const parseString = (item: Value): string => {
   }
 };
 
-export class NostrKeyValue {
+export default class NostrKeyValue {
   private relays: string[] = [];
   private author: string;
   private appName: string;
 
-  constructor(relays: [], author: string, appName: string) {
+  constructor(relays: string[], author: string, appName: string) {
     this.relays = relays;
     this.author = author;
     this.appName = appName;
