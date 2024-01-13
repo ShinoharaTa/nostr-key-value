@@ -1,4 +1,4 @@
-import { eventKind, NostrFetcher } from "nostr-fetch";
+import { eventKind, NostrFetcher, NostrEventExt } from "nostr-fetch";
 const fetcher = NostrFetcher.init();
 
 export type NostrKeyValues = {
@@ -20,6 +20,16 @@ const parseString = (item: Value): string => {
   }
 };
 
+function parseToObject(event: NostrEventExt<false> | undefined): any {
+  try {
+    return event && typeof event.content === "string"
+      ? JSON.parse(event.content)
+      : null;
+  } catch (e) {
+    return null;
+  }
+}
+
 export default class NostrKeyValue {
   private relays: string[] = [];
   private author: string;
@@ -37,7 +47,7 @@ export default class NostrKeyValue {
       "#d": [this.appName],
       authors: [this.author],
     });
-    return result ? JSON.parse(result.content) : null;
+    return parseToObject(result);
   };
 
   getItem = async (key: string): Promise<string | null> => {
@@ -52,7 +62,7 @@ export default class NostrKeyValue {
       "#d": [this.appName],
       authors: [this.author],
     });
-    const keyValues = result ? JSON.parse(result.content) : {};
+    const keyValues = parseToObject(result) ?? {};
     keyValues[key] = parseString(value);
     const ev = {
       kind: eventKind.appSpecificData,
@@ -70,7 +80,7 @@ export default class NostrKeyValue {
     delete keyValues[key];
     const ev = {
       kind: eventKind.appSpecificData,
-      content: "",
+      content: JSON.stringify(keyValues),
       tags: [["d", this.appName]],
       created_at: unixtime(),
     };
