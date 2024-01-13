@@ -1,27 +1,18 @@
-import {
-  getAll,
-  getTable,
-  getSingle,
-  createTable,
-  upsertTable,
-  KeyValueArray,
-  clearTable,
-  utilKeyValueArrayToObject,
-  utilObjectToKeyValueArray,
-  upsertTableOrCreate,
-  createTableExists,
-} from "../src";
+import NostrKeyValue from "../src";
 import { relayInit, finishEvent } from "nostr-tools";
+import { parseISO } from "date-fns";
 import dotenv from "dotenv";
 import "websocket-polyfill";
+import { setTimeout } from "timers/promises";
 
 dotenv.config();
 
 const npub = process.env.NPUB_HEX ?? "";
 const nsec = process.env.NSEC_HEX ?? "";
-const relayUrl = process.env.RELAY ?? "";
+const relays = ["wss://r.kojira.io"];
 
-const relay = relayInit(relayUrl);
+const relay = relayInit("wss://r.kojira.io");
+relay.connect();
 relay.on("error", () => {
   throw "failed to connect";
 });
@@ -30,121 +21,85 @@ const post = async (ev: any) => {
   return new Promise((resolve, reject) => {
     const data = finishEvent(ev, nsec);
     const pub = relay.publish(data);
-
-    pub.on("ok", () => {
-      // console.log("succeess!");
+    pub.then(() => {
       resolve("success");
     });
-
-    pub.on("failed", () => {
-      // console.log("failed to send event");
+    pub.catch(() => {
       reject("failed");
     });
   });
 };
 
-const create = async () => {
-  let table_ev: any = null;
-  table_ev = createTable("test_table", "NostrKeyValue_TestTable");
-  post(table_ev);
-  table_ev = createTable("test_table2", "NostrKeyValue_TestTable");
-  post(table_ev);
-  table_ev = createTable("test_table3", "NostrKeyValue_TestTable");
-  post(table_ev);
-};
-
-const insert = async () => {
-  const options: KeyValueArray = [
-    ["option1", "option"],
-    ["option2", "option"],
-    ["option3", "option"],
-    ["option4", "option"],
-    ["option5", "option"],
-  ];
-  const values: KeyValueArray = [
-    ["key1", "value 1"],
-    ["key2", "value 2"],
-    ["key3", "value 3"],
-    ["key4", "value 4"],
-    ["key5", "value 5"],
-  ];
-  const ev = await upsertTable([relayUrl], npub, "test_table", options, values);
-  post(ev);
-};
-
-const upsert = async () => {
-  const options: KeyValueArray = [
-    ["option3", "option_update"],
-    ["option7", "option_update"],
-  ];
-  const values: KeyValueArray = [
-    ["key2", "value 2_update"],
-    ["key9", "value 9_update"],
-  ];
-  const ev = await upsertTable([relayUrl], npub, "test_table", options, values);
-  post(ev);
-};
-
-const get = async () => {
-  const all = await getAll([relayUrl], npub, 10);
-  console.log(all);
-
-  const table = await getTable([relayUrl], npub, "test_table");
-  console.log("table", table);
-
-  const single = await getSingle([relayUrl], npub, "test_table", "key1");
-  console.log("single", single);
-};
-
-const clear = async () => {
-  let ev: any = null;
-  ev = await clearTable([relayUrl], npub, "test_table", 0);
-  expect(ev).not.toBeNull();
-  post(ev);
-  ev = await clearTable([relayUrl], npub, "test_table", 0);
-  expect(ev).not.toBeNull();
-  post(ev);
-  ev = await clearTable([relayUrl], npub, "test_table", 0);
-  expect(ev).not.toBeNull();
-  post(ev);
-};
-
-const exists = async () => {
-  await upsertTableOrCreate(
-    [relayUrl],
+test("create", async () => {
+  const nkv: NostrKeyValue = new NostrKeyValue(
+    relays,
     npub,
-    "update_table_or_create",
-    "table_title",
-    [],
-    []
+    "nostr_key_value_create_test"
   );
-  await createTableExists(
-    [relayUrl],
-    npub,
-    "update_table_or_create",
-    "table_title"
-  );
-};
-
-const util = () => {
-  const obj = {
-    test1: "value1",
-    test2: "value2",
-    test3: "value3",
-    test4: "value4",
+  const items = {
+    number: 123,
+    string: "string_item",
+    date: parseISO("2023-01-01T00:00:00.000Z"),
+    null: null,
   };
-  const result1 = utilObjectToKeyValueArray(obj);
-  const result2 = utilKeyValueArrayToObject(result1);
-  expect(result2).toEqual(obj);
-};
+  await post(await nkv.setItem("number", items.number));
+  await setTimeout(1000);
+  await post(await nkv.setItem("string", items.string));
+  await setTimeout(1000);
+  await post(await nkv.setItem("date", items.date));
+  await setTimeout(1000);
+  await post(await nkv.setItem("null", items.null));
+  await setTimeout(1000);
+  const result = await nkv.getItems();
+  expect({
+    number: "123",
+    string: "string_item",
+    date: "2023-01-01T00:00:00.000Z",
+    null: "",
+  }).toEqual(result);
+}, 10000);
 
-test("default", async () => {
-  await relay.connect();
-  await create();
-  await insert();
-  await upsert();
-  await get();
-  await clear();
-  await exists();
-  util();
-});
+test("update", async () => {
+  const nkv: NostrKeyValue = new NostrKeyValue(
+    relays,
+    npub,
+    "nostr_key_value_update_test"
+  );
+  const items = ["shino3", "shino4", "shino5"];
+  await post(await nkv.setItem("name", items[0]));
+  await setTimeout(1000);
+  await post(await nkv.setItem("name", items[1]));
+  await setTimeout(1000);
+  await post(await nkv.setItem("name", items[2]));
+  await setTimeout(1000);
+  const result = await nkv.getItem("name");
+  expect(items[2]).toEqual(result);
+}, 10000);
+
+test("drop", async () => {
+  const nkv: NostrKeyValue = new NostrKeyValue(
+    relays,
+    npub,
+    "nostr_key_value_delete_test"
+  );
+  await post(await nkv.setItem("value1", "shino3"));
+  await setTimeout(1000);
+  await post(await nkv.setItem("value2", "shino4"));
+  await setTimeout(1000);
+  await post(await nkv.setItem("value3", "shino5"));
+  await setTimeout(1000);
+  const result_1 = await nkv.getItems();
+  expect({ value1: "shino3", value2: "shino4", value3: "shino5" }).toEqual(
+    result_1
+  );
+  await post(await nkv.dropItem("value3"));
+  await setTimeout(1000);
+  const result_2 = await nkv.getItems();
+  expect({ value1: "shino3", value2: "shino4"}).toEqual(
+    result_2
+  );
+  await post(await nkv.dropItems());
+  await setTimeout(1000);
+  const result_3 = await nkv.getItems();
+  expect({}).toEqual(result_3);
+}, 20000);
