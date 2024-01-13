@@ -1,4 +1,4 @@
-import { eventKind, NostrFetcher, NostrEventExt } from "nostr-fetch";
+import { NostrEventExt, NostrFetcher, eventKind } from "nostr-fetch";
 const fetcher = NostrFetcher.init();
 
 export type NostrKeyValues = {
@@ -11,16 +11,19 @@ const unixtime = (): number => Math.floor(Date.now() / 1000);
 const parseString = (item: Value): string => {
   if (typeof item === "string") {
     return item;
-  } else if (typeof item === "number") {
-    return item.toString();
-  } else if (item instanceof Date) {
-    return item.toISOString();
-  } else {
-    return "";
   }
+  if (typeof item === "number") {
+    return item.toString();
+  }
+  if (item instanceof Date) {
+    return item.toISOString();
+  }
+  return "";
 };
 
-function parseToObject(event: NostrEventExt<false> | undefined): any {
+function parseToObject(
+  event: NostrEventExt<false> | undefined,
+): NostrKeyValues | null {
   try {
     return event && typeof event.content === "string"
       ? JSON.parse(event.content)
@@ -53,7 +56,7 @@ export default class NostrKeyValue {
   getItem = async (key: string): Promise<string | null> => {
     const parsedContent = await this.getItems();
     if (!parsedContent) return null;
-    return parsedContent.hasOwnProperty(key) ? parsedContent[key] : null;
+    return key in parsedContent ? parsedContent[key] : null;
   };
 
   setItem = async (key: string, value: Value) => {
@@ -75,8 +78,8 @@ export default class NostrKeyValue {
 
   dropItem = async (key: string) => {
     const keyValues = await this.getItems();
-    if (!keyValues) return;
-    if (!keyValues.hasOwnProperty(key)) return;
+    if (!keyValues) return null;
+    if (!(key in keyValues)) return null;
     delete keyValues[key];
     const ev = {
       kind: eventKind.appSpecificData,

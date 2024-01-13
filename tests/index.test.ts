@@ -1,9 +1,9 @@
-import NostrKeyValue from "../src";
-import { relayInit, finishEvent } from "nostr-tools";
 import { parseISO } from "date-fns";
 import dotenv from "dotenv";
-import "websocket-polyfill";
+import { EventTemplate, finishEvent, relayInit } from "nostr-tools";
 import { setTimeout } from "timers/promises";
+import "websocket-polyfill";
+import NostrKeyValue from "../src";
 
 dotenv.config();
 
@@ -17,7 +17,8 @@ relay.on("error", () => {
   throw "failed to connect";
 });
 
-const post = async (ev: any) => {
+const post = async (ev: EventTemplate<30078> | null) => {
+  if (!ev) return Promise.resolve("success");
   return new Promise((resolve, reject) => {
     const data = finishEvent(ev, nsec);
     const pub = relay.publish(data);
@@ -34,7 +35,7 @@ test("create", async () => {
   const nkv: NostrKeyValue = new NostrKeyValue(
     relays,
     npub,
-    "nostr_key_value_create_test"
+    "nostr_key_value_create_test",
   );
   const items = {
     number: 123,
@@ -63,7 +64,7 @@ test("update", async () => {
   const nkv: NostrKeyValue = new NostrKeyValue(
     relays,
     npub,
-    "nostr_key_value_update_test"
+    "nostr_key_value_update_test",
   );
   const items = ["shino3", "shino4", "shino5"];
   await post(await nkv.setItem("name", items[0]));
@@ -80,7 +81,7 @@ test("drop", async () => {
   const nkv: NostrKeyValue = new NostrKeyValue(
     relays,
     npub,
-    "nostr_key_value_delete_test"
+    "nostr_key_value_delete_test",
   );
   await post(await nkv.setItem("value1", "shino3"));
   await setTimeout(1000);
@@ -90,14 +91,12 @@ test("drop", async () => {
   await setTimeout(1000);
   const result_1 = await nkv.getItems();
   expect({ value1: "shino3", value2: "shino4", value3: "shino5" }).toEqual(
-    result_1
+    result_1,
   );
   await post(await nkv.dropItem("value3"));
   await setTimeout(1000);
   const result_2 = await nkv.getItems();
-  expect({ value1: "shino3", value2: "shino4"}).toEqual(
-    result_2
-  );
+  expect({ value1: "shino3", value2: "shino4" }).toEqual(result_2);
   await post(await nkv.dropItems());
   await setTimeout(1000);
   const result_3 = await nkv.getItems();
