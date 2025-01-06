@@ -4,7 +4,6 @@
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ESNext", "DOM"],
-    // "types": ["vitest/importMeta"],
     "moduleResolution": "bundler",
     "strict": true,
     "resolveJsonModule": true,
@@ -14,17 +13,12 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "skipLibCheck": true,
-    "emitDeclarationOnly": true,
     "declaration": true,
     "declarationMap": true,
     "declarationDir": "./lib",
     "sourceMap": true,
     "outDir": "./lib",
     "rootDir": "./src",
-    // "strict": true,
-    // "module": "ESNext", // or "ESNext"
-    // "target": "es2016",
-    // "esModuleInterop": true
   },
   "include": [
     "src/**/*.ts"
