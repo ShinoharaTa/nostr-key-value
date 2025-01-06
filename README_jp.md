@@ -19,7 +19,7 @@ Shino3 (しのさん)
 - GitHub: @ShinoharaTa (https://github.com/ShinoharaTa)
 - nostr: shino3 (https://nostx.io/_@shino3.net)
 - NIP-05: _@shino3.net
-- ⚡LN addr: achingcancer35@walletofsatoshi.com
+- ⚡LN addr: shino3@walletofsatoshi.com
 
 ## ライセンス
 
