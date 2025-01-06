@@ -1,250 +1,105 @@
-import { eventKind, NostrFetcher } from "nostr-fetch";
-const fetcher = NostrFetcher.init();
+import { type NostrEventExt, NostrFetcher } from "nostr-fetch";
+import { kinds } from "nostr-tools";
+import WebSocket from "ws";
 
-// types
-export type KeyValueArray = string[][];
-type DBHeadEntry = ["d", string] | ["title", string] | ["t", string];
-type DBHead = DBHeadEntry[];
+const fetcher = NostrFetcher.init({ webSocketConstructor: WebSocket });
 
-// local functions
-const unixtime = () => Math.floor(new Date().getTime() / 1000);
-function keyExists(array: KeyValueArray, key: string): boolean {
-  return array.some((item) => item[0] === key);
+export type NostrKeyValues = {
+  [key: string]: string;
+};
+
+type Value = string | number | Date | null;
+
+const unixtime = (): number => Math.floor(Date.now() / 1000);
+const parseString = (item: Value): string => {
+  if (typeof item === "string") {
+    return item;
+  }
+  if (typeof item === "number") {
+    return item.toString();
+  }
+  if (item instanceof Date) {
+    return item.toISOString();
+  }
+  return "";
+};
+
+function parseToObject(
+  event: NostrEventExt<false> | undefined,
+): NostrKeyValues | null {
+  try {
+    return event && typeof event.content === "string"
+      ? JSON.parse(event.content)
+      : null;
+  } catch (e) {
+    return null;
+  }
 }
-function updateKeyValue(array: KeyValueArray, key: string, value: string) {
-  for (let i = 0; i < array.length; i++) {
-    if (array[i][0] === key) {
-      array[i][1] = value;
-      break;
-    }
+
+export default class NostrKeyValue {
+  private relays: string[] = [];
+  private author: string;
+  private appName: string;
+
+  constructor(relays: string[], author: string, appName: string) {
+    this.relays = relays;
+    this.author = author;
+    this.appName = appName;
   }
-  return array;
+
+  getItems = async (): Promise<NostrKeyValues | null> => {
+    const result = await fetcher.fetchLastEvent(this.relays, {
+      kinds: [kinds.Application],
+      "#d": [this.appName],
+      authors: [this.author],
+    });
+    return parseToObject(result);
+  };
+
+  getItem = async (key: string): Promise<string | null> => {
+    const parsedContent = await this.getItems();
+    if (!parsedContent) return null;
+    return key in parsedContent ? parsedContent[key] : null;
+  };
+
+  setItem = async (key: string, value: Value) => {
+    const result = await fetcher.fetchLastEvent(this.relays, {
+      kinds: [kinds.Application],
+      "#d": [this.appName],
+      authors: [this.author],
+    });
+    const keyValues = parseToObject(result) ?? {};
+    keyValues[key] = parseString(value);
+    const ev = {
+      kind: kinds.Application,
+      content: JSON.stringify(keyValues),
+      tags: [["d", this.appName]],
+      created_at: unixtime(),
+    };
+    return ev;
+  };
+
+  dropItem = async (key: string) => {
+    const keyValues = await this.getItems();
+    if (!keyValues) return null;
+    if (!(key in keyValues)) return null;
+    delete keyValues[key];
+    const ev = {
+      kind: kinds.Application,
+      content: JSON.stringify(keyValues),
+      tags: [["d", this.appName]],
+      created_at: unixtime(),
+    };
+    return ev;
+  };
+
+  dropItems = async () => {
+    const ev = {
+      kind: kinds.Application,
+      content: JSON.stringify({}),
+      tags: [["d", this.appName]],
+      created_at: unixtime(),
+    };
+    return ev;
+  };
 }
-
-// export funstions
-export const getAll = async (
-  relay: string[],
-  author: string,
-  limit?: number
-) => {
-  const result = await fetcher.fetchLatestEvents(
-    relay,
-    {
-      kinds: [eventKind.appSpecificData],
-      authors: [author],
-    },
-    limit ?? 100
-  );
-  return result;
-};
-
-export const getTable = async (
-  relay: string[],
-  author: string,
-  tableName: string
-) => {
-  const result = await fetcher.fetchLastEvent(relay, {
-    kinds: [eventKind.appSpecificData],
-    "#d": [tableName],
-    authors: [author],
-  });
-  return result;
-};
-
-export const getSingle = async (
-  relay: string[],
-  author: string,
-  tableName: string,
-  key: string
-) => {
-  const result = await fetcher.fetchLastEvent(relay, {
-    kinds: [eventKind.appSpecificData],
-    "#d": [tableName],
-    authors: [author],
-  });
-  if (result) {
-    let tag = result.tags.find((tag) => tag[0] === key);
-    return tag ? tag[1] : null;
-  }
-  return null;
-};
-
-export const createTable = (tableName: string, tableTitle: string) => {
-  const db_head: DBHead = [
-    ["d", tableName],
-    ["title", tableTitle],
-    ["t", tableName],
-  ];
-  const ev = {
-    kind: eventKind.appSpecificData,
-    content: "test",
-    tags: db_head,
-    created_at: unixtime(),
-  };
-  return ev;
-};
-
-export const createTableExists = async (
-  relay: string[],
-  author: string,
-  tableName: string,
-  tableTitle: string
-) => {
-  const result = await getTable(relay, author, tableName);
-  if (result) return null;
-  const db_head: DBHead = [
-    ["d", tableName],
-    ["title", tableTitle],
-    ["t", tableName],
-  ];
-  const ev = {
-    kind: eventKind.appSpecificData,
-    content: "test",
-    tags: db_head,
-    created_at: unixtime(),
-  };
-  return ev;
-};
-
-export const upsertTable = async (
-  relay: string[],
-  author: string,
-  tableName: string,
-  options: KeyValueArray,
-  values: KeyValueArray
-) => {
-  const result = await fetcher.fetchLastEvent(relay, {
-    kinds: [eventKind.appSpecificData],
-    "#d": [tableName],
-    authors: [author],
-  });
-  if (!result) return null;
-
-  let tags = result.tags;
-  options.forEach(([key, value]) => {
-    if (keyExists(tags, key)) {
-      tags = updateKeyValue(tags, key, value);
-    } else {
-      tags.push([key, value]);
-    }
-  });
-
-  values.forEach(([key, value]) => {
-    if (keyExists(tags, key)) {
-      tags = updateKeyValue(tags, key, value);
-    } else {
-      tags.push([key, value]);
-    }
-  });
-
-  const ev = {
-    kind: result.kind,
-    content: result.content,
-    tags: tags,
-    created_at: unixtime(),
-  };
-
-  return ev;
-};
-
-export const upsertTableOrCreate = async (
-  relay: string[],
-  author: string,
-  tableName: string,
-  tableTitle: string,
-  options: KeyValueArray,
-  values: KeyValueArray
-) => {
-  const { kind, content, tags } = (await getTable(
-    relay,
-    author,
-    tableName
-  )) ?? {
-    kind: eventKind.appSpecificData,
-    content: "test",
-    tags: [
-      ["d", tableName],
-      ["title", tableTitle],
-      ["t", tableName],
-    ],
-  };
-  let tag_temp = tags;
-  options.forEach(([key, value]) => {
-    if (keyExists(tag_temp, key)) {
-      tag_temp = updateKeyValue(tags, key, value);
-    } else {
-      tag_temp.push([key, value]);
-    }
-  });
-
-  values.forEach(([key, value]) => {
-    if (keyExists(tag_temp, key)) {
-      tag_temp = updateKeyValue(tags, key, value);
-    } else {
-      tag_temp.push([key, value]);
-    }
-  });
-
-  const ev = {
-    kind: kind,
-    content: content,
-    tags: tags,
-    created_at: unixtime(),
-  };
-
-  return ev;
-};
-
-export const clearTable = async (
-  relay: string[],
-  author: string,
-  tableName: string,
-  optionsLength: number
-) => {
-  const result = await fetcher.fetchLastEvent(relay, {
-    kinds: [eventKind.appSpecificData],
-    "#d": [tableName],
-    authors: [author],
-  });
-  if (!result) return null;
-  const ev = {
-    kind: result.kind,
-    content: result.content,
-    tags: result.tags.slice(0, 3 + optionsLength),
-    created_at: unixtime(),
-  };
-  return ev;
-};
-
-type ValueType = string | number | object;
-export type KeyValueObject = {
-  [key: string]: ValueType;
-};
-
-export const utilKeyValueArrayToObject = (
-  values: KeyValueArray
-): KeyValueObject => {
-  let result: KeyValueObject = {};
-
-  for (let item of values) {
-    let [key, value] = item;
-    result[key] = value;
-  }
-  return result;
-};
-
-export const utilObjectToKeyValueArray = (
-  values: KeyValueObject
-): KeyValueArray => {
-  let array: KeyValueArray = [];
-  for (let key in values) {
-    let value = values[key];
-    if (typeof value === "number") {
-      value = value.toString();
-    } else if (typeof value === "object") {
-      value = JSON.stringify(value);
-    }
-    array.push([key, value]);
-  }
-  return array;
-};

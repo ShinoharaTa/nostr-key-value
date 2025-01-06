@@ -10,13 +10,15 @@ JavaScript/TypeScript をサポートします。
 -> [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md)  
 -> [NIP-78 日本語訳](https://scrapbox.io/nostr/NIP-78)
 
+※ v0.3.x docs -> [./docs/v0.3/README_JP.md](./docs/v0.3/README_JP.md)
+
 ## 作った人
 
 Shino3 (しのさん)
 
 - GitHub: @ShinoharaTa (https://github.com/ShinoharaTa)
-- nostr: shino3 (https://nostx.shino3.net/npub1l60d6h2uvdwa9yq0r7r2suhgrnsadcst6nsx2j03xwhxhu2cjyascejxe5)
-- NIP-05: shino3@nostr.shino3.net
+- nostr: shino3 (https://nostx.io/_@shino3.net)
+- NIP-05: _@shino3.net
 - ⚡LN addr: achingcancer35@walletofsatoshi.com
 
 ## ライセンス
@@ -52,69 +54,38 @@ npm install nostr-key-value
 
 ## 使用方法
 
-プロジェクトに npm 経由で導入後、以下のコードで使用します。
+プロジェクトに npm 経由で導入後、以下のコードで使用します。クラスの初期化が必要です。
 
-```javascript
-import {} from "nostr-key-value";
+```typescript
+const npub = process.env.NPUB_HEX ?? "";
+const relays = ["wss://nos.lol"];
+const nostrKeyValue: NostrKeyValue = new NostrKeyValue(
+  relays,
+  npub,
+  "nostr_key_value_update_test",
+);
+
+await nostrKeyValue.setItem("item", "Hello!");
+const result_1 = await nostrKeyValue.getItem("item");
+console.log("getValue: ", result_1);
+// > Hello!
+await nostrKeyValue.dropItem("item", );
+const result_2 = await nostrKeyValue.getItem("item");
+console.log("getValue: ", result_2);
+// > null
 ```
 
-### GET
+### `getItem`
 
 Nostr リレー上に保存された `kind: 30078` から指定したものを取得する処理です。
 
-#### `getAll`
-
-Author が持つ全ての `kind: 30078` を取得します。
-
 - 引数
-  - relay: `[wss://relay-url]` string 型の配列（必須）
-  - author: `npub` string 型（必須）
-  - limit: `取得最大件数` number 型、デフォルト: 100 件
-- 戻り値
-  - NostrEvent（nostr-fetch の NostrEvent 型）の配列
-  - ※ 一致するものがない場合、レスポンスの array.length は 0 になります
-
-#### `getTable`
-
-Author が持つ `kind: 30078` からテーブル名が一致したオブジェクトを取得します。
-
-- 引数
-  - relay: `[wss://relay-url]` string 型の配列（必須）
-  - author: `npub` string 型（必須）
-  - table: string 型（必須）
-- 戻り値
-  - NostrEvent（nostr-fetch の NostrEvent 型）or Null
-  - ※ 一致するものがない場合、レスポンスは null になります
-
-#### `getSingle`
-
-Author が持つ `kind: 30078` からテーブルを検索し、そのテーブルの指定したキーを取得します。
-
-- 引数
-  - relay: `[wss://relay-url]` string 型の配列（必須）
-  - author: `npub` string 型（必須）
-  - table: string 型（必須）
   - key: string 型（必須）
 - 戻り値
   - string 型 or Null
   - ※ 一致するものがない場合、レスポンスは null になります
 
-```javascript
-import { getAll, getTable, getSingle } from "nostr-key-value";
-
-async () => {
-  const all = await getAll([relayUrl], npub, 10);
-  console.log(all);
-
-  const table = await getTable([relayUrl], npub, "test_table");
-  console.log("table", table);
-
-  const single = await getSingle([relayUrl], npub, "test_table", "key1");
-  console.log("single", single);
-};
-```
-
-### CREATE
+### `setItem`
 
 この関数はテーブル新規作成に必要な JSON を返します。  
 JSON を署名し、リレーに送信した段階でテーブルの作成が完了します。
@@ -125,147 +96,16 @@ JSON を署名し、リレーに送信した段階でテーブルの作成が完
 #### `createTable`
 
 - 引数
-  - tableName: string 型（必須）
-  - tableTitle: string 型（必須）
+  - key: string 型（必須）
+  - value: string | number | null 型（必須）
 - 戻り値
   - JSON オブジェクト
 
-```javascript
-import { createTable } from "nostr-key-value";
+例: `./tests/index.test.ts` のcreateまたはupdateセクションを見てください。
 
-const table_ev = createTable("table_name", "table_title");
-post(table_ev);
+### `dropItem`
 
-// use: nostr-tools methods
-const relayUrl = "wss://your-relay-url";
-const relay = relayInit(relayUrl);
-const post = async (ev) => {
-  return new Promise((resolve, reject) => {
-    const data = finishEvent(ev, nsec);
-    const pub = relay.publish(data);
-    pub.on("ok", () => {
-      resolve("success");
-    });
-    pub.on("failed", () => {
-      reject("failed");
-    });
-  });
-};
-```
-
-#### `createTableExists`
-
-Create 前にテーブルの存在検査をおこないます。既にテーブルが存在する場合は `null` を返します。
-null のときはテーブルの新規作成が保護されます。
-
-- 引数
-  - relay: `[wss://relay-url]` string 型の配列（必須）
-  - author: `npub` string 型（必須）
-  - tableName: string 型（必須）
-  - tableTitle: string 型（必須）
-- 戻り値
-  - JSON オブジェクト or null
-
-```javascript
-import { createTable } from "nostr-key-value";
-
-const table_ev = createTableExists(
-  [relayUrl],
-  npub,
-  "table_name",
-  "table_title"
-);
-// use: nostr-tools post methods.
-if(table_ev) post(table_ev);
-```
-
-### INSERT, UPDATE
-
-この関数はテーブルへのデータ追加・更新に必要な JSON を返します。  
-JSON を署名し、リレーに送信した段階でテーブルの更新が完了します。
-
-※ JSON は nostr-tools 等を使用して署名と投稿を行ってください。このライブラリではサポートされません
-※ `注意` ロールバックはできません
-
-#### `upsertTable`
-
-- 引数
-  - relay: `[wss://relay-url]` string 型の配列（必須）
-  - author: `npub` string 型（必須）
-  - tableName: string 型（必須）
-  - options: KeyValueArray 型の配列（必須）、※ length: 0 OK
-  - values: KeyValueArray 型の配列（必須）、※ length: 0 OK
-- 戻り値
-  - JSON オブジェクト or null
-  - ※ 一致するテーブルがない場合、レスポンスは null になります
-
-```javascript
-import { upsertTable } from "nostr-key-value";
-
-const options = [
-  ["option_key0", "value"],
-  ["option_key1", "value"],
-  ["option_key2", "value"],
-];
-const values = [
-  ["data_key0", "value"],
-  ["data_key1", "value"],
-  ["data_key2", "value"],
-  ["data_key3", "value"],
-  ["data_key4", "value"],
-];
-
-const table_ev = upsertTable([relayUrl], npub, "table_name", options, values);
-// use nostr tools posts;
-post(table_ev);
-```
-
-#### `upsertTableOrCreate`
-
-テーブルが一致しない場合は新規に作成し、レコードを挿入します。
-
-- 引数
-  - relay: `[wss://relay-url]` string 型の配列（必須）
-  - author: `npub` string 型（必須）
-  - tableName: string 型（必須）
-  - tableTitle: string 型（必須）
-  - options: KeyValueArray 型の配列（必須）、※ length: 0 OK
-  - values: KeyValueArray 型の配列（必須）、※ length: 0 OK
-- 戻り値
-  - JSON オブジェクト
-
-```javascript
-import { upsertTable } from "nostr-key-value";
-
-const options = [
-  ["option_key0", "value"],
-  ["option_key1", "value"],
-  ["option_key2", "value"],
-];
-const values = [
-  ["data_key0", "value"],
-  ["data_key1", "value"],
-  ["data_key2", "value"],
-  ["data_key3", "value"],
-  ["data_key4", "value"],
-];
-
-const table_ev = upsertTableOrCreate(
-  [relayUrl],
-  npub,
-  "table_name",
-  "table_title",
-  options,
-  values
-);
-// use nostr tools posts;
-post(table_ev);
-```
-
-### CLEAR
-
-この関数はテーブルのデータをクリアする JSON を返します。  
-JSON を署名し、リレーに送信した段階でテーブルの更新が完了します。
+この関数はテーブルの指定のキーを削除します。
 
 ※ JSON は nostr-tools 等を使用して署名と投稿を行ってください。このライブラリではサポートされません
 ※ `注意` ロールバックはできません
@@ -273,65 +113,9 @@ JSON を署名し、リレーに送信した段階でテーブルの更新が完
 #### `clearTable`
 
 - 引数
-  - relay: `[wss://relay-url]` string 型の配列（必須）
-  - author: `npub` string 型（必須）
-  - tableName: string 型（必須）
-  - optionsLength: number 型（必須） ※ length: 0 OK
+  - key: string 型（必須）
 - 戻り値
   - JSON オブジェクト or null
   - ※ 一致するテーブルがない場合、レスポンスは null になります
 
-```javascript
-import { upsertTable } from "nostr-key-value";
-
-const options = [
-  ["option_key0", "value"],
-  ["option_key1", "value"],
-  ["option_key2", "value"],
-];
-const table_ev = upsertTable([relayUrl], npub, "table_name", options.length);
-// use nostr tools posts;
-post(table_ev);
-```
-
-### ユーティリティ
-
-便利なアイテムを用意しました。以下の関数が提供されます。
-
-#### `utilKeyValueArrayToObject`
-
-- 引数
-  - values: KeyValueArray 型の配列（必須）、※ length: 0 OK
-- 戻り値
-  - JSON オブジェクト
-
-```javascript
-import { utilKeyValueArrayToObject } from "nostr-key-value";
-const values = [
-  ["data_key0", "value"],
-  ["data_key1", "value"],
-  ["data_key2", "value"],
-  ["data_key3", "value"],
-  ["data_key4", "value"],
-];
-const objects = utilKeyValueArrayToObject(values);
-```
-
-#### `utilObjectToKeyValueArray`
-
-- 引数
-  - KeyValueObject: JSON オブジェクト
-- 戻り値
-  - KeyValueArray 型の配列（必須）、※ length: 0 OK
-
-```javascript
-import { utilObjectToKeyValueArray } from "nostr-key-value";
-const object = {
-  data_key0: "value",
-  data_key1: "value",
-  data_key2: "value",
-  data_key3: "value",
-  data_key4: "value",
-};
-const values = utilObjectToKeyValueArray(values);
-```
+例: `./tests/index.test.ts` のdropセクションを見てください。

@@ -1,6 +1,6 @@
 {
   "name": "nostr-key-value",
-  "version": "0.3.4",
+  "version": "1.0.0",
   "description": "",
   "main": "./lib/index.js",
   "module": "./lib/index.js",
@@ -8,7 +8,11 @@
   "type": "module",
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "lint:code": "biome lint ./",
+    "lint:style": "biome format ./",
+    "fix:style": "biome format --write ./",
+    "fix:code": "biome lint --apply ./"
   },
   "repository": {
     "type": "git",
@@ -21,21 +25,28 @@
     "src",
     "lib"
   ],
-  "keywords": ["nostr", "key-value", "NIP-78"],
+  "keywords": [
+    "nostr",
+    "key-value",
+    "NIP-78"
+  ],
   "author": "ShinoharaTa",
   "license": "MIT",
   "dependencies": {
-    "nostr-fetch": "^0.12.1"
+    "@types/ws": "^8.5.13",
+    "nostr-fetch": "^0.17.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@types/jest": "^29.5.3",
-    "@types/node": "^20.4.2",
-    "dotenv": "^16.3.1",
-    "jest": "^29.6.1",
-    "nostr-tools": "1.12.1",
-    "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
-    "websocket-polyfill": "^0.0.3"
+    "@biomejs/biome": "1.9.4",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "jest": "^29.7.0",
+    "nostr-tools": "^2.10.4",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   }
 }
