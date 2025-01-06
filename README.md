@@ -16,8 +16,8 @@ This library uses NIP-78, which is a system that provides something like remoteS
 Shino3 (Shino-san) from:🇯🇵
 
 - GitHub: @ShinoharaTa (https://github.com/ShinoharaTa)
-- nostr: shino3 (https://nostx.shino3.net/npub1l60d6h2uvdwa9yq0r7r2suhgrnsadcst6nsx2j03xwhxhu2cjyascejxe5)
-- NIP-05: shino3@nostr.shino3.net
+- nostr: shino3 (https://nostx.io/_@shino3.net)
+- NIP-05: _@shino3.net
 - ⚡LN addr: achingcancer35@walletofsatoshi.com
 
 ## License
