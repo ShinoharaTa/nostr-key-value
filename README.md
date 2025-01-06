@@ -11,6 +11,8 @@ This library uses NIP-78, which is a system that provides something like remoteS
 
 -> [NIP-78](https://github.com/nostr-protocol/nips/blob/master/78.md)
 
+※ v0.3.x docs -> [./docs/v0.3/README.md](./docs/v0.3/README.md)
+
 ## Who made it
 
 Shino3 (Shino-san) from:🇯🇵
@@ -53,9 +55,7 @@ npm install nostr-key-value
 
 ## How to use
 
-After installing via npm in your project, use the following code.
-
-using initialize class.
+After installing via npm in your project, use the following code. Using initialize class.
 
 ```typescript
 const npub = process.env.NPUB_HEX ?? "";
@@ -86,7 +86,6 @@ Searches a table from `kind: 30078` which Author has, and gets the specified key
   - string type or Null
   - If no match is found, the response will be null.
 
-
 ### `setItem`
 
 This function returns the JSON required to create a new table.  
@@ -101,7 +100,7 @@ Note: If an identical table already exists on the relay, it will be overwritten.
 - Return values
   - JSON object
 
-example: `./tests/index.test.ts` in create or update section.
+example: `./tests/index.test.ts` see in create or update section.
 
 ### `dropItem`
 
