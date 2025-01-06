@@ -1,5 +1,8 @@
-import { NostrEventExt, NostrFetcher, eventKind } from "nostr-fetch";
-const fetcher = NostrFetcher.init();
+import { type NostrEventExt, NostrFetcher } from "nostr-fetch";
+import { kinds } from "nostr-tools";
+import WebSocket from "ws";
+
+const fetcher = NostrFetcher.init({ webSocketConstructor: WebSocket });
 
 export type NostrKeyValues = {
   [key: string]: string;
@@ -46,7 +49,7 @@ export default class NostrKeyValue {
 
   getItems = async (): Promise<NostrKeyValues | null> => {
     const result = await fetcher.fetchLastEvent(this.relays, {
-      kinds: [eventKind.appSpecificData],
+      kinds: [kinds.Application],
       "#d": [this.appName],
       authors: [this.author],
     });
@@ -61,14 +64,14 @@ export default class NostrKeyValue {
 
   setItem = async (key: string, value: Value) => {
     const result = await fetcher.fetchLastEvent(this.relays, {
-      kinds: [eventKind.appSpecificData],
+      kinds: [kinds.Application],
       "#d": [this.appName],
       authors: [this.author],
     });
     const keyValues = parseToObject(result) ?? {};
     keyValues[key] = parseString(value);
     const ev = {
-      kind: eventKind.appSpecificData,
+      kind: kinds.Application,
       content: JSON.stringify(keyValues),
       tags: [["d", this.appName]],
       created_at: unixtime(),
@@ -82,7 +85,7 @@ export default class NostrKeyValue {
     if (!(key in keyValues)) return null;
     delete keyValues[key];
     const ev = {
-      kind: eventKind.appSpecificData,
+      kind: kinds.Application,
       content: JSON.stringify(keyValues),
       tags: [["d", this.appName]],
       created_at: unixtime(),
@@ -92,7 +95,7 @@ export default class NostrKeyValue {
 
   dropItems = async () => {
     const ev = {
-      kind: eventKind.appSpecificData,
+      kind: kinds.Application,
       content: JSON.stringify({}),
       tags: [["d", this.appName]],
       created_at: unixtime(),

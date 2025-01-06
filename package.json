@@ -33,19 +33,20 @@
   "author": "ShinoharaTa",
   "license": "MIT",
   "dependencies": {
-    "nostr-fetch": "^0.12.1"
+    "@types/ws": "^8.5.13",
+    "nostr-fetch": "^0.17.0",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.5.1",
-    "@types/jest": "^29.5.3",
-    "@types/node": "^20.4.2",
-    "date-fns": "^2.30.0",
-    "dotenv": "^16.3.1",
-    "jest": "^29.6.1",
-    "nostr-tools": "^1.16.0",
-    "ts-jest": "^29.1.1",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.1.6",
-    "websocket-polyfill": "^0.0.3"
+    "@biomejs/biome": "1.9.4",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.10.5",
+    "date-fns": "^4.1.0",
+    "dotenv": "^16.4.7",
+    "jest": "^29.7.0",
+    "nostr-tools": "^2.10.4",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
   }
 }
